@@ -1,0 +1,36 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+?>
+<div class="text-gray-700 body-font bg-container-darker border-t border-container-darker shadow" style="background-color: #000">
+    <div class="container py-4 md:py-8 mx-auto">
+        <div class="flex flex-wrap order-first gap-y-16">
+            <?= $block->getChildHtml() ?>
+        </div>
+    </div>
+    <div class="bg-container" style="background-color: #0d0d0d">
+        <!-- <div class="container py-8 mx-auto">
+            <div class="flex flex-wrap order-first gap-y-16">
+			    <?php echo $block->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('footer_bottom_links')->toHtml(); ?>
+            </div>
+        </div> -->
+        <div class="container py-6 mx-auto flex items-center sm:flex-row flex-col">
+            <p class="text-sm text-white sm:ml-6 sm:mt-0 mt-4">
+                Copyright © 2021-Disenparts.com, Inc. All rights reserved.
+            </p>
+        </div>
+    </div>
+</div>
+

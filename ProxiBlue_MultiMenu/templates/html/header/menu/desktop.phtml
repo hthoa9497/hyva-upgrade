@@ -1,0 +1,97 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use ProxiBlue\MultiMenu\ViewModel\Navigation;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Navigation $viewModelNavigation */
+$viewModelNavigation = $viewModels->require(Navigation::class);
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+// Order is important here: 1. build the menu data, 2. then set the cache tags from the view model identities
+$menuItems = $viewModelNavigation->getNavigation($viewModelNavigation->getCategoryDepth());
+
+// add Home and Part Request
+$additional = [
+    'home' => [
+        'name' => __('Home'),
+        'id' => 'home',
+        'url' => '/'
+    ],
+    'contact' => [
+        'name' => __('Part Request'),
+        'id' => 'contact',
+        'url' => 'https://www.disenparts.com/contact'
+    ],
+];
+$menuItems = array_merge($additional, $menuItems);
+
+$block->setData('cache_tags', $viewModelNavigation->getIdentities());
+
+
+?>
+<div id="nav-desktop" x-data="initMenuCustom()"
+     class="kkkkkkkkk z-20 order-2 sm:order-1 lg:order-2 navigation hidden lg:flex"
+     style="background-color: #232323"
+>
+    <!-- desktop -->
+    <div x-ref="nav-desktop"
+         @load.window="setActiveMenu($el)"
+         class="hidden lg:block lg:relative lg:min-h-0 lg:w-auto lg:pt-0 container">
+        <nav id="nav-desktop-container"
+             class="nav-desktop w-full duration-150 ease-in-out transform flex justify-start
+            w-auto relative min-h-0 transition-display"
+        >
+            <?php foreach ($menuItems as $index => $menuItem): ?>
+                <div class="group group-<?= /* @noEscape */
+                (string)$index ?> hover:bg-primary-darker py-2">
+                    <button
+                        @click="initMenuCustom.hoverPanelActiveId = '<?= /* @noEscape */
+                        (string)$index ?>'"
+                        class="hover:text-white border-none bg-transparent outline-none focus:outline-none border px-5 py-1 h-10 rounded-sm flex items-center min-w-32"
+                    >
+                        <span class="pr-1 font-bold flex-1">
+                                <a href="<?= $escaper->escapeHtml($menuItem['url']) ?>"
+                                   title="Click to view all <?= $escaper->escapeHtml($menuItem['name']) ?>"
+                                   class="top-menu block w-full whitespace-nowrap first:mt-0 text-black lg:text-white">
+                            <?= $escaper->escapeHtml($menuItem['name']) ?>
+                                </a>
+                        </span>
+                        <?php if (!empty($menuItem['childData'])): ?>
+                            <span>
+                      <svg
+                          class="fill-current h-4 w-4 transform group-hover:-rotate-180 transition duration-150 ease-in-out control text-black lg:text-white"
+                          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                      </svg>
+                    </span>
+                        <?php endif; ?>
+                    </button>
+                    <?php if (!empty($menuItem['childData'])): ?>
+                        <?= $block->getLayout()->getBlock('topmenu_multimenu_childitems')
+                            ->setData('parent_data', $menuItem)
+                            ->setData('child_css', 'border-t-0 transform scale-0 group-hover:scale-100 origin-top')
+                            ->setData('child_level', 1)
+                            ->setData('show_icons', $block->getShowIcons())
+                            ->toHtml(); ?>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+            <?= $block->getChildHtml('topmenu.additional.items'); ?>
+        </nav>
+    </div>
+</div>

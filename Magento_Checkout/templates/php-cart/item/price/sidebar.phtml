@@ -1,0 +1,29 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductPrice;
+use Magento\Checkout\Block\Item\Price\Renderer as PriceRenderer;
+
+/** @var PriceRenderer $block */
+/** @var ViewModelRegistry $viewModels */
+
+$item = $block->getItem();
+$productPriceViewModel = $viewModels->require(ProductPrice::class);
+?>
+<div class="price-container">
+    <span class="price-label"><?= $block->escapeHtml(__('Price')) ?></span>
+    <span class="price-wrapper">
+        <?= $block->escapeHtml(
+            $productPriceViewModel->formatPrice($item->getCalculationPrice()),
+            ['span']
+        ) ?>
+    </span>
+</div>

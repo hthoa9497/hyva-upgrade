@@ -1,0 +1,49 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2022 Amasty (https://www.amasty.com)
+ * @package Amasty_CheckoutThankYouPage
+ */
+?>
+<?php
+/**
+ * @var $block Magento\Checkout\Block\Onepage\Success
+ * @var $escaper Magento\Framework\Escaper
+ */
+?>
+
+<div class="checkout-success">
+    <?php if ($block->getOrderId()):?>
+        <div class="mb-8">
+            <?php if ($block->getCanViewOrder()):?>
+                <p><?= $escaper->escapeHtml(__('Your order number is:')) ?>
+                    <a href="<?= /* @noEscape */$block->getViewOrderUrl() ?>"
+                       class="order-number" >
+                        <strong>
+                            <?= /* @noEscape */$block->getOrderId() ?>
+                        </strong>
+                    </a>
+                </p>
+            <?php  else: ?>
+                <p>
+                    <?= $escaper->escapeHtml(__('Your order # is:')) ?>
+                    <span>
+                        <?= /* @noEscape */$block->getOrderId() ?>
+                    </span>
+                </p>
+            <?php endif;?>
+            <p><?= $escaper->escapeHtml(__('We\'ll email you an order confirmation with details and tracking info.')) ?></p>
+        </div>
+        <?= $block->getChildHtml('details') ?>
+    <?php endif;?>
+
+    <?= $block->getAdditionalInfoHtml() ?>
+    <?= $block->getChildHtml('cms') ?>
+
+    <div class="my-4">
+        <a class="btn btn-primary inline-flex" href="<?= $escaper->escapeUrl($block->getUrl()) ?>">
+            <span><?= $escaper->escapeHtml(__('Continue Shopping')) ?></span>
+        </a>
+    </div>
+</div>
+

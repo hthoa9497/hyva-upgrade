@@ -1,0 +1,79 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Navigation;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Navigation $viewModelNavigation */
+$viewModelNavigation = $viewModels->require(Navigation::class);
+
+$uniqueId = '_' . uniqid();
+
+// Order is important here: 1. build the menu data, 2. then set the cache tags from the view model identities
+$menuItems = $viewModelNavigation->getNavigation(4);
+$block->setData('cache_tags', $viewModelNavigation->getIdentities());
+
+?>
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var element = document.querySelectorAll("#nav-mobile-container ul.level-1");
+        element.forEach(function(currentValue){
+            currentValue.classList.remove("group-hover:scale-100");
+        });
+    });
+</script>
+<div id="nav-mobile" x-data="initMenuCustom()"
+     class="nav-mobile z-20 order-2 sm:order-1 lg:order-2 navigation lg:hidden"
+>
+    <!-- mobile -->
+    <div id="nav-mobile-scroll" @load.window="setActiveMenu($el)"
+         :class="{'fixed top-0 left-0 w-full h-full overflow-auto bg-container-lighter' : open}"
+         @toggle-mobile-menu.window="open = !open; moveMenuInDom()"
+         @keydown.window.escape="open=false"
+         @click="handleMobileOpenMenu($event)"
+    >
+        <div class="flex items-baseline justify-between menu-icon ml-2">
+            <div class="flex justify-end w-full">
+                <a @click="$dispatch('toggle-mobile-menu')"
+                   class="flex items-center justify-center cursor-pointer"
+                   :class="{ 'ml-auto': open }">
+                    <svg class="hidden w-16 h-16 p-4 fill-current"
+                         :class="{ 'hidden' : !open, 'block': open }"
+                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0
+                          1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828
+                          4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z">
+                        </path>
+                    </svg>
+                    <svg class="block w-6 h-6 fill-current text-white"
+                         :class="{ 'hidden' : open, 'block': !open }"
+                         xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 20 20">
+                        <path
+                            d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z">
+                        </path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <nav id="nav-mobile-container"
+             class="hidden w-full duration-150 ease-in-out transform border-t transition-display border-container"
+             :class="{ 'hidden' : !open }">
+        </nav>
+    </div>
+</div>
+

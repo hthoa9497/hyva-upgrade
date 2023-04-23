@@ -1,0 +1,204 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var Hyva\Theme\ViewModel\StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(Hyva\Theme\ViewModel\StoreConfig::class);
+$showMiniCart = $storeConfig->getStoreConfig(\Magento\Checkout\Block\Cart\Sidebar::XML_PATH_CHECKOUT_SIDEBAR_DISPLAY);
+?>
+<script>
+    function initHeader () {
+        return {
+            searchOpen: true,
+            cart: {},
+            getData(data) {
+                if (data.cart) { this.cart = data.cart }
+            }
+        }
+    }
+    function initCompareHeader() {
+        return {
+            compareProducts: null,
+            itemCount: 0,
+            receiveCompareData(data) {
+                if (data['compare-products']) {
+                    this.compareProducts = data['compare-products'];
+                    this.itemCount = this.compareProducts.count;
+                }
+            }
+        }
+    }
+    function initWishlistHeader() {
+        return {
+            wishlistProducts: null,
+            itemWishlistCount: 0,
+            receiveWishlistData(data) {
+                if (data['wishlist']) {
+                    this.wishlistProducts = data['wishlist'];
+                    this.itemWishlistCount = this.wishlistProducts.items.length;
+                }
+            }
+        }
+    }
+</script>
+<div id="header"
+     class="relative w-full bg-container-lighter border-container-lighter mx-auto md:mx-auto py-4 md:px-10 md:py-8 leading-6"
+     x-data="initHeader()"
+     @keydown.window.escape="searchOpen = false;"
+     @private-content-loaded.window="getData(event.detail.data)"
+     style="background-color: #232323"
+>
+    <div class="flex md:flex-row flex-wrap justify-between leading-6 container">
+        <!--Logo-->
+        <?= $block->getChildHtml('logo'); ?>
+
+        <!--Search-->
+<!--        <div class="hidden md:block w-full sm:w-1/2 mx-auto md:mx-10 leading-6 border-solid border-neutral-200 text-stone-500 justify-center md:justify-start md:order-2 order-5" id="search-content"-->
+<!--             :class="{ 'block': searchOpen, 'hidden': !searchOpen }" @click.away="searchOpen = false"-->
+<!--             x-show="true"-->
+<!--        >-->
+        <div class="hidden md:block w-full sm:w-1/2 mx-auto md:mx-10 leading-6 border-solid border-neutral-200 text-stone-500 justify-center md:justify-start md:order-2 order-5" id="search-content"
+             :class="{ 'block': searchOpen, 'hidden': !searchOpen }"
+             x-show="true"
+        >
+            <?= $block->getChildHtml('header-search'); ?>
+        </div>
+
+        <div class="flex items-center order-3">
+            <!--Show search mobile-->
+            <a id="menu-search-icon" class="hidden inline-block ml-1 no-underline sm:ml-3 hover:text-primary" href="#" @click.prevent="searchOpen = !searchOpen; $nextTick(function () { document.querySelector('#search').select(); });">
+                <span class="sr-only label">
+                    Search
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 md:h-8 md:w-8 text-white" width="25" height="25">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </a>
+
+            <!--Compare Icon-->
+            <a id="compare-link"
+               class="relative hidden inline-block mx-1 no-underline sm:ml-3 hover:text-primary"
+               :class="{ 'hidden': !(itemCount > 0) }"
+               href="<?= $escaper->escapeUrl($block->getUrl('catalog/product_compare/index')) ?>"
+               title="<?= $escaper->escapeHtml(__('Compare Products')) ?>"
+               x-data="initCompareHeader()"
+               @private-content-loaded.window="receiveCompareData($event.detail.data)"
+            >
+                <?= $heroicons->scaleHtml(
+                    "w-6 h-6 md:h-8 md:w-8 hover:text-primary",
+                    25,
+                    25
+                ) ?>
+
+                <span class="sr-only label">
+                   <?= $escaper->escapeHtml(__('Compare Products')) ?>
+                </span>
+
+                <span class="absolute top-0 right-0 h-5 px-2 py-1 -mt-5 -mr-4 text-xs font-semibold
+                    leading-none text-center text-white uppercase transform -translate-x-1
+                    translate-y-1/2 bg-yellow-500 rounded-full"
+                >
+                    <span x-text="itemCount"></span>
+                    <span x-show="itemCount === 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('item')) ?>
+                    </span>
+                    <span x-show="itemCount > 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('items')) ?>
+                    </span>
+                </span>
+            </a>
+
+            <!-- Favourite Icon -->
+            <a id="menu-favourite-icon"
+               class="relative inline-block ml-1 no-underline sm:ml-3 hover:text-primary"
+               href="<?= $escaper->escapeUrl($block->getUrl('wishlist')) ?>"
+               title="<?= $escaper->escapeHtml(__('Whistlist')) ?>"
+               x-data="initWishlistHeader()"
+               @private-content-loaded.window="receiveWishlistData($event.detail.data)"
+            >
+                <span class="sr-only label">
+                    <?= $escaper->escapeHtml(__('Favourite')) ?>
+                </span>
+
+                <span x-show="itemWishlistCount > 0" class="absolute top-0 right-0 h-5 px-2 py-1 -mt-5 -mr-4 text-xs font-semibold
+                    leading-none text-center text-white uppercase transform -translate-x-1
+                    translate-y-1/2 bg-yellow-500 rounded-full"
+                >
+                    <span x-text="itemWishlistCount"></span>
+                    <span x-show="itemWishlistCount === 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('item')) ?>
+                    </span>
+                    <span x-show="itemWishlistCount > 1" class="sr-only">
+                        <?= $escaper->escapeHtml(__('items')) ?>
+                    </span>
+                </span>
+
+                <?= $heroicons->heartHtml(
+                    "w-6 h-6 md:h-8 md:w-8 hover:text-primary text-white",
+                    25,
+                    25
+                ) ?>
+            </a>
+
+            <!--Customer Icon & Dropdown-->
+            <?= $block->getChildHtml('customer') ?>
+
+            <!--Cart Icon-->
+            <a id="menu-cart-icon"
+               <?php if ($showMiniCart): ?>@click.prevent.stop="$dispatch('toggle-cart',{});"<?php endif ?>
+               class="relative inline-block ml-1 no-underline sm:ml-3 hover:text-primary"
+               href="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/index')) ?>"
+            >
+                <span class="sr-only label">
+                    <?= $escaper->escapeHtml(__('Cart')) ?>
+                </span>
+
+                <?= $heroicons->shoppingCartHtml(
+                    "w-6 h-6 md:h-8 md:w-8 hover:text-primary text-white",
+                    25,
+                    25
+                ) ?>
+
+                <span x-text="cart.summary_count"
+                      class="absolute top-0 right-0 hidden h-5 px-2 py-1 -mt-5 -mr-4 text-xs font-semibold
+                        leading-none text-center text-white uppercase transform -translate-x-1
+                        translate-y-1/2 rounded-full bg-primary"
+                      :class="{
+                        'hidden': !cart.summary_count,
+                        'block': cart.summary_count }"
+                ></span>
+            </a>
+
+            <!-- nav mobile -->
+            <?= $block->getChildHtml('topmenu_generic_mobile') ?>
+
+        </div>
+    </div>
+
+    <!--Cart Drawer-->
+    <?= $block->getChildHtml('cart-drawer'); ?>
+
+    <!--Authentication Pop-Up-->
+    <?= $block->getChildHtml('authentication-popup'); ?>
+</div>
+
+<!--Main Navigation-->
+<?= $block->getChildHtml('topmenu_generic_desktop') ?>
